@@ -1,0 +1,52 @@
+name: Initialize cloud MySQL
+
+on:
+  workflow_dispatch:
+
+jobs:
+  initialize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install MySQL client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mysql-client
+
+      - name: Prepare schema for existing cloud database
+        run: |
+          sed '/^CREATE DATABASE /d; /^USE FoodRescueDB;/d' database.sql > /tmp/database.sql
+
+      - name: Import database schema
+        env:
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_USER: ${{ secrets.DB_USER }}
+          MYSQL_PWD: ${{ secrets.DB_PASSWORD }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+        run: |
+          set -euo pipefail
+          mysql \
+            --protocol=TCP \
+            --host="$DB_HOST" \
+            --port="$DB_PORT" \
+            --user="$DB_USER" \
+            "$DB_NAME" < /tmp/database.sql
+
+      - name: Verify imported tables
+        env:
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_USER: ${{ secrets.DB_USER }}
+          MYSQL_PWD: ${{ secrets.DB_PASSWORD }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+        run: |
+          mysql \
+            --protocol=TCP \
+            --host="$DB_HOST" \
+            --port="$DB_PORT" \
+            --user="$DB_USER" \
+            --database="$DB_NAME" \
+            --execute="SHOW TABLES;"
