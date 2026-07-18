@@ -1,0 +1,69 @@
+name: Unpack project files
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'CA2.zip'
+      - '.github/workflows/unpack-project.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  unpack:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Unpack project into repository root
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ ! -f CA2.zip ]; then
+            echo "CA2.zip is already removed. Nothing to unpack."
+            exit 0
+          fi
+
+          TEMP_DIR="$(mktemp -d)"
+          unzip -q CA2.zip -d "$TEMP_DIR"
+
+          PROJECT_ROOT="$TEMP_DIR/CA2"
+          if [ ! -d "$PROJECT_ROOT" ]; then
+            PROJECT_ROOT="$(find "$TEMP_DIR" -mindepth 1 -maxdepth 2 -type f -name package.json -printf '%h\n' | head -n 1)"
+          fi
+
+          if [ -z "${PROJECT_ROOT:-}" ] || [ ! -f "$PROJECT_ROOT/package.json" ]; then
+            echo "Could not locate the extracted Node.js project."
+            exit 1
+          fi
+
+          rsync -a \
+            --exclude='.git/' \
+            --exclude='node_modules/' \
+            --exclude='.env' \
+            "$PROJECT_ROOT/" ./
+
+          rm -f CA2.zip
+
+      - name: Commit unpacked files
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+
+          git commit -m "Unpack project files"
+          git push origin main
