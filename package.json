@@ -1,0 +1,30 @@
+{
+  "name": "community-food-rescue",
+  "version": "1.0.0",
+  "description": "C237 CA2 Community Food Rescue web application",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "check": "node --check app.js && node --check routes/auth.js && node --check routes/donations.js && node --check routes/volunteer.js && node --check routes/admin.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "dotenv": "^17.4.2",
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "express-flash": "^0.0.2",
+    "express-session": "^1.18.1",
+    "method-override": "^3.0.0",
+    "multer": "^2.0.1",
+    "mysql2": "^3.14.2",
+    "nodemailer": "^7.0.3",
+    "qrcode": "^1.5.4"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}

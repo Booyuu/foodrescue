@@ -1,0 +1,27 @@
+<%- include('partials/header') %>
+<section class="hero">
+  <div class="container hero-grid">
+    <div class="hero-copy reveal">
+      <span class="kicker"><i class="fa-solid fa-sparkles"></i> Neighbours helping neighbours</span>
+      <h1>Rescue good food.<br><em>Feed the community.</em></h1>
+      <p>We connect surplus meals from local donors with volunteers who can get them to people who need them—before they go to waste.</p>
+      <div class="button-row"><a class="button" href="/donations">Find a collection <i class="fa-solid fa-arrow-right"></i></a><a class="button button-secondary" href="/register">Donate surplus food</a></div>
+      <div class="trust-row"><span><i class="fa-solid fa-circle-check"></i> Verified donors</span><span><i class="fa-solid fa-clock"></i> Live expiry updates</span><span><i class="fa-solid fa-shield-heart"></i> Community powered</span></div>
+    </div>
+    <div class="hero-visual reveal">
+      <div class="hero-shape"></div>
+      <div class="hero-icon"><i class="fa-solid fa-hand-holding-heart"></i></div>
+      <div class="floating-card fc-one"><span class="float-icon green"><i class="fa-solid fa-leaf"></i></span><div><strong><%= Number(stats.meals_saved).toLocaleString() %> meals</strong><small>rescued so far</small></div></div>
+      <div class="floating-card fc-two"><span class="float-icon coral"><i class="fa-solid fa-location-dot"></i></span><div><strong><%= stats.active_listings %> pickups</strong><small>available now</small></div></div>
+    </div>
+  </div>
+</section>
+<section class="impact-strip">
+  <div class="container stat-grid"><div><strong><%= stats.total_donations %></strong><span>food donations</span></div><div><strong><%= Number(stats.meals_saved).toLocaleString() %></strong><span>meals rescued</span></div><div><strong><%= stats.completed %></strong><span>completed collections</span></div><div><strong><%= Math.round(stats.meals_saved * 0.65) %> kg</strong><span>estimated CO₂ avoided</span></div></div>
+</section>
+<section class="section container">
+  <div class="section-heading"><div><span class="kicker">Ready to rescue</span><h2>Food available nearby</h2><p>Fresh opportunities, ordered by what expires first.</p></div><a class="text-link" href="/donations">See all donations <i class="fa-solid fa-arrow-right"></i></a></div>
+  <% if (featured.length) { %><div class="card-grid"><% featured.forEach(item => { %><%- include('partials/listing-card', { item }) %><% }) %></div><% } else { %><div class="empty-state"><i class="fa-solid fa-seedling"></i><h3>No active listings yet</h3><p>Be the first donor to share surplus food with the community.</p><a class="button" href="/register">Get started</a></div><% } %>
+</section>
+<section class="section how-section"><div class="container"><div class="section-heading centered"><div><span class="kicker">Simple by design</span><h2>From surplus to shared in three steps</h2></div></div><div class="steps"><div><span>01</span><i class="fa-solid fa-camera"></i><h3>List surplus food</h3><p>Donors add a photo, pickup location and safe expiry time.</p></div><div><span>02</span><i class="fa-solid fa-person-walking-arrow-right"></i><h3>A volunteer claims it</h3><p>Nearby volunteers see the listing and accept the collection.</p></div><div><span>03</span><i class="fa-solid fa-people-carry-box"></i><h3>Food reaches people</h3><p>The handover is confirmed and the rescue adds to our impact.</p></div></div></div></section>
+<%- include('partials/footer') %>

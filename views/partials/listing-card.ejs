@@ -1,0 +1,14 @@
+<article class="food-card">
+  <a class="food-image" href="/donations/<%= item.listing_id %>">
+    <% if (item.image_url) { %><img src="<%= item.image_url %>" alt="<%= item.food_name %>"><% } else { %><div class="image-placeholder"><i class="fa-solid fa-bowl-food"></i></div><% } %>
+    <span class="status-badge status-<%= item.status.toLowerCase() %>"><%= item.status %></span>
+    <% if (item.status === 'Available') { %><span class="expiry-pill" data-expiry="<%= String(item.expiry_date).replace(' ', 'T') %>"><i class="fa-regular fa-clock"></i> Calculating…</span><% } %>
+  </a>
+  <div class="food-card-body">
+    <div class="eyebrow"><%= item.food_category %></div>
+    <h3><a href="/donations/<%= item.listing_id %>"><%= item.food_name %></a></h3>
+    <p class="clamp"><%= item.description %></p>
+    <div class="food-meta"><span><i class="fa-solid fa-box"></i> <%= item.quantity %></span><span><i class="fa-solid fa-location-dot"></i> <%= item.pickup_address %></span></div>
+    <div class="card-footer"><span><i class="fa-regular fa-user"></i> <%= item.donor_name || user?.name || 'Donor' %></span><a href="/donations/<%= item.listing_id %>">View details <i class="fa-solid fa-arrow-right"></i></a></div>
+  </div>
+</article>

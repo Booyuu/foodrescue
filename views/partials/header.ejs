@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Community Food Rescue connects surplus food with volunteers and neighbours in need.">
+  <title><%= title %> | Community Food Rescue</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+  <link rel="stylesheet" href="/css/style.css?v=2">
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <header class="site-header">
+    <nav class="nav container" aria-label="Main navigation">
+      <a class="brand" href="/" aria-label="Community Food Rescue home">
+        <span class="brand-mark"><i class="fa-solid fa-leaf"></i></span>
+        <span>Community<span>Food Rescue</span></span>
+      </a>
+      <button class="nav-toggle" type="button" aria-label="Open menu" aria-expanded="false"><i class="fa-solid fa-bars"></i></button>
+      <div class="nav-links">
+        <a class="<%= currentPath === '/donations' ? 'active' : '' %>" href="/donations">Find food</a>
+        <% if (user) { %>
+          <a class="<%= currentPath === '/dashboard' ? 'active' : '' %>" href="/dashboard">Dashboard</a>
+          <% if (user.role === 'Donor' && user.is_verified) { %><a class="button button-small" href="/donations/new"><i class="fa-solid fa-plus"></i> Donate food</a><% } %>
+          <% if (user.role === 'Admin') { %><a href="/admin/users">Users</a><a href="/admin/listings">Listings</a><% } %>
+          <span class="user-chip"><i class="fa-regular fa-circle-user"></i> <%= user.name.split(' ')[0] %> · <%= user.role %></span>
+          <form action="/logout" method="post"><button class="nav-text-button" type="submit">Log out</button></form>
+        <% } else { %>
+          <a href="/login">Log in</a>
+          <a class="button button-small" href="/register">Join the rescue</a>
+        <% } %>
+        <button class="theme-toggle" type="button" aria-label="Switch colour theme"><i class="fa-solid fa-moon"></i></button>
+      </div>
+    </nav>
+  </header>
+  <div class="flash-stack" aria-live="polite">
+    <% (messages?.success || []).forEach(message => { %><div class="flash success"><i class="fa-solid fa-circle-check"></i><span><%= message %></span><button aria-label="Dismiss">×</button></div><% }) %>
+    <% (messages?.error || []).forEach(message => { %><div class="flash error"><i class="fa-solid fa-circle-exclamation"></i><span><%= message %></span><button aria-label="Dismiss">×</button></div><% }) %>
+  </div>
+  <main id="main-content">
