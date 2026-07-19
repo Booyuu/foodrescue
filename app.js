@@ -17,13 +17,12 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 const sessionStore = new MySQLStore({
-  host: process.env.DB_HOST,
-  port: Number(process.env.DB_PORT || 3306),
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  createDatabaseTable: true
-});
+  createDatabaseTable: true,
+  clearExpired: true,
+  checkExpirationInterval: 15 * 60 * 1000,
+  expiration: 7 * 24 * 60 * 60 * 1000
+}, db);
+
 const port = Number(process.env.PORT || 3000);
 
 app.set('view engine', 'ejs');
@@ -146,7 +145,19 @@ app.use((error, req, res, _next) => {
     req.flash('error', error.message);
     return res.redirect(req.get('referer') || '/dashboard');
   }
-  return res.status(500).render('error', { title: 'Something went wrong', status: 500, message: process.env.NODE_ENV === 'development' ? error.message : 'Please try again shortly.' });
+
+return res.status(500).render('error', {
+  title: 'Something went wrong',
+  status: 500,
+  message: process.env.NODE_ENV === 'development'
+    ? error.message
+    : 'Please try again shortly.',
+  user: res.locals.user || null,
+  currentPath: req.path || '',
+  messages: res.locals.messages || {
+    success: [],
+    error: []
+  }
 });
 
 async function ensureAdmin() {
