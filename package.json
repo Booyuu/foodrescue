@@ -17,6 +17,7 @@
     "ejs": "^3.1.10",
     "express": "^5.1.0",
     "express-flash": "^0.0.2",
+    "express-mysql-session": "^3.0.3",
     "express-session": "^1.18.1",
     "method-override": "^3.0.0",
     "multer": "^2.0.1",
