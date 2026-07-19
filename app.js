@@ -3,6 +3,7 @@ require('dotenv').config();
 const path = require('path');
 const express = require('express');
 const session = require('express-session');
+const mysql = require('mysql2');
 const MySQLStore = require('express-mysql-session')(session);
 const flash = require('express-flash');
 const methodOverride = require('method-override');
@@ -12,18 +13,32 @@ const { requireAuth } = require('./middleware/auth');
 const { expireListings } = require('./utils/listings');
 
 const app = express();
+const port = Number(process.env.PORT || 3000);
+
 if (process.env.NODE_ENV === 'production') {
   app.set('trust proxy', 1);
 }
+
+const sessionPool = mysql.createPool({
+  host: process.env.DB_HOST || 'localhost',
+  port: Number(process.env.DB_PORT || 3306),
+  user: process.env.DB_USER || 'root',
+  password: process.env.DB_PASSWORD || '',
+  database: process.env.DB_NAME || 'FoodRescueDB',
+  waitForConnections: true,
+  connectionLimit: 2,
+  queueLimit: 0,
+  enableKeepAlive: true,
+  keepAliveInitialDelay: 0,
+  connectTimeout: 10000
+});
 
 const sessionStore = new MySQLStore({
   createDatabaseTable: true,
   clearExpired: true,
   checkExpirationInterval: 15 * 60 * 1000,
   expiration: 7 * 24 * 60 * 60 * 1000
-}, db);
-
-const port = Number(process.env.PORT || 3000);
+}, sessionPool);
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -134,30 +149,38 @@ app.use('/donations', require('./routes/donations'));
 app.use('/volunteer', require('./routes/volunteer'));
 app.use('/admin', require('./routes/admin'));
 
-app.use((_req, res) => res.status(404).render('error', { title: 'Page not found', status: 404, message: 'The page you requested could not be found.' }));
+app.use((_req, res) => res.status(404).render('error', {
+  title: 'Page not found',
+  status: 404,
+  message: 'The page you requested could not be found.'
+}));
+
 app.use((error, req, res, _next) => {
   console.error(error);
+
   if (error.code === 'LIMIT_FILE_SIZE') {
     req.flash('error', 'Image must be 5 MB or smaller.');
     return res.redirect(req.get('referer') || '/dashboard');
   }
+
   if (error.message?.startsWith('Only JPG')) {
     req.flash('error', error.message);
     return res.redirect(req.get('referer') || '/dashboard');
   }
 
-return res.status(500).render('error', {
-  title: 'Something went wrong',
-  status: 500,
-  message: process.env.NODE_ENV === 'development'
-    ? error.message
-    : 'Please try again shortly.',
-  user: res.locals.user || null,
-  currentPath: req.path || '',
-  messages: res.locals.messages || {
-    success: [],
-    error: []
-  }
+  return res.status(500).render('error', {
+    title: 'Something went wrong',
+    status: 500,
+    message: process.env.NODE_ENV === 'development'
+      ? error.message
+      : 'Please try again shortly.',
+    user: res.locals.user || null,
+    currentPath: req.path || '',
+    messages: res.locals.messages || {
+      success: [],
+      error: []
+    }
+  });
 });
 
 async function ensureAdmin() {
